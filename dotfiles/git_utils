@@ -1,0 +1,18 @@
+# git status
+
+function parse_git_branch {
+  ref=$(git-symbolic-ref HEAD 2> /dev/null) || return
+  echo "("${ref#refs/heads/}")"
+}
+
+BLUE="\[\033[01;34m\]"
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;00m\]"
+
+PS1="$BLUE\$(date +%H:%M) \w$YELLOW \$(__git_ps1)$GREEN\$ "
+
+# PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
+
+# # git status
+# export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\]:\w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\]'
+# export GIT_PS1_SHOWDIRTYSTATE=1

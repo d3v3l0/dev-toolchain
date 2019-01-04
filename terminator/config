@@ -1,0 +1,22 @@
+[global_config]
+  handle_size = 1
+  inactive_color_offset = 1.0
+[keybindings]
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    cursor_blink = False
+    cursor_color = "#aaaaaa"
+    font = Terminus 13
+    scrollback_lines = 9999
+    scrollbar_position = hidden
+    show_titlebar = False
+    use_system_font = False

@@ -1,0 +1,25 @@
+# Enable deb source in Software Updater
+
+# Install gnome-tweaks
+
+# Install Google Chrome from website
+
+# Uninstall fwupd (for audio issues)
+
+# git identify myself
+git config --global user.email wesm+git@apache.org
+git config --global user.name "Wes McKinney"
+
+# Upgrade to latest git
+sudo add-apt-repository ppa:git-core/ppa
+sudo apt update
+sudo apt install git
+
+# Setup printers
+
+http://support.brother.com/g/b/downloadtop.aspx?c=us&lang=en&prod=mfc7840w_all
+
+# Install docker-compose
+
+sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose

@@ -1,0 +1,244 @@
+# -*- sh -*-  Personal bash settings
+# Put this at the end of your .bashrc or .bash_profile file
+# # Source personal definitions
+# if [ -f ~/.bash_personal ]; then
+#         . ~/.bash_personal
+# fi
+
+# don't put duplicate lines in the history. See bash(1) for more options
+# ... or force ignoredups and ignorespace
+HISTCONTROL=ignoredups:ignorespace
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+############################################################################
+# system specific settings
+export EDITOR=emacs
+if [[ $UNAME != "Darwin" ]]; then  # not Mac
+    export GUI_EDITOR=emacs
+
+    # path additions
+    export PATH=/usr/local/pgsql/bin:$PATH
+    export PATH=/home/wesm/bin/R/bin:$PATH
+else # is Mac
+    #export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
+    #export MACOSX_DEPLOYMENT_TARGET=10.6
+    export GUI_EDITOR=Emacs
+fi
+
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias ipy="ipython"
+alias pylab="ipython --pylab=qt"
+# alias iqlab='ipython-qtconsole --paging vsplit --pylab'
+alias iqlab='ipython-qtconsole --pylab=qt'
+
+alias ga='git add'
+alias gp='git push'
+alias gl='git log'
+alias gs='git status'
+alias gd='git diff'
+alias gm='git commit -m'
+alias gma='git commit -am'
+alias gb='git branch'
+alias gc='git checkout'
+alias gra='git remote add'
+alias grr='git remote rm'
+alias gpu='git pull'
+alias gcl='git clone'
+
+# some more ls aliases
+alias ll='ls -l'
+#alias la='ls -A'
+#alias l='ls -CF'
+
+# update for ubuntu
+alias apt-up='sudo apt-get update;sudo apt-get -y --force-yes dselect-upgrade'
+
+DOTFILES=$HOME/code/nixconfig/dotfiles
+
+############################################################################
+#
+# Load basic bash utilities (handy functions and constants)
+#
+source $DOTFILES/bash_utils
+
+# Initialize $PATH with sbin locations so I can find system tools
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH
+
+# Now, set all common paths based on the prefix list just built.  The
+# export_paths function ensures that all commonly needed paths get correctly
+# set and exported to the environment.
+# export_paths "$pfx"
+
+############################################################################
+
+# git completion
+source $DOTFILES/git_utils
+source $DOTFILES/git-completion
+source $DOTFILES/git-prompt.sh
+
+# bashmarks
+source $DOTFILES/bashmarks
+
+BLUE="\[\033[1;36m\]"
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;00m\]"
+
+PS1="$BLUE\$(date +%H:%M) \w$YELLOW \$(__git_ps1)$GREEN\$ "
+
+# PS1='[\u@\h ${PWD/$HOME/~}$(__git_ps1 " (%s)")]\$ '
+
+# pushd to directory for python package
+function pushdp {
+   pushd `python -c "import os; import $1; print os.path.dirname($1.__file__)"`
+}
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
+
+export CHROME_BIN=/usr/bin/google-chrome
+
+#----------------------------------------------------------------------
+
+# export CC="gcc"
+
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/R/lib:/usr/local/lib
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/Qt/5.7/gcc_64/lib
+
+# postgres
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/pgsql/lib
+# export LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH
+
+export KARMA_BROWSERS="PhantomJS"
+
+#----------------------------------------------------------------------
+# Kudu-related functions / environment variables
+
+export KUDU_HOME=$HOME/code/cloudera/kudu
+
+#----------------------------------------------------------------------
+# C++ toolchain
+
+export NATIVE_TOOLCHAIN=$HOME/code/native-toolchain/build
+
+export FEATHER_GCC_ROOT=$NATIVE_TOOLCHAIN/gcc-4.9.2
+export FEATHER_USE_CCACHE=1
+
+export FEATHER_HOME=$HOME/local
+
+export IWYU=$HOME/code/include-what-you-use/build/include-what-you-use
+
+# Local executables
+export PATH=$PATH:$HOME/local/bin
+
+function toolchain {
+    export LD_LIBRARY_PATH=$NATIVE_TOOLCHAIN/gcc-4.9.2/lib64
+}
+
+function badger_paths {
+    export LD_LIBRARY_PATH=$NATIVE_TOOLCHAIN/gcc-4.9.2/lib64
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
+}
+
+export WES_CONFIG_DIR=$HOME/code/nixconfig
+
+function sync_config {
+	pushd $WES_CONFIG_DIR
+	git stash
+	git pull --rebase
+	git stash pop
+	git commit -a -m "automated sync"
+	git push
+	popd
+}
+
+export TOOLCHAIN_FILES=$WES_CONFIG_DIR/toolchain
+
+function toolchain {
+	source $TOOLCHAIN_FILES/arrow-toolchain.sh
+}
+
+function toolchain_cmake {
+	export PATH=$NATIVE_TOOLCHAIN/cmake-3.2.3/bin:$PATH
+	echo $PATH
+}
+
+function pull-upstream {
+	git pull --ff-only upstream master
+}
+
+#----------------------------------------------------------------------
+# R stuff
+
+export PATH=$HOME/R/bin:$PATH
+
+#----------------------------------------------------------------------
+# Go stuff
+
+export GOROOT=/opt/go1.11
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+#----------------------------------------------------------------------
+# hs2client development
+
+export HS2CLIENT_HOME=$HOME/local
+
+export EMACS_FONT="Terminus-12"
+
+#----------------------------------------------------------------------
+# Python for Data Analysis book stuff
+
+. $TOOLCHAIN_FILES/book-toolchain.sh
+
+export LD_LIBRARY_PATH=$HOME/Qt/5.7/gcc_64/lib:$LD_LIBRARY_PATH
+
+# ----------------------------------------------------------------------
+# NVM
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# ----------------------------------------------------------------------
+# Set up conda, activate arrow-dev by default
+
+# work around a linux bug
+# https://support.enthought.com/hc/en-us/articles/204469320-Linux-IPython-in-terminal-error-setupterm-could-not-find-terminfo-database-
+export TERM="xterm-256color"
+
+. /home/wesm/miniconda/etc/profile.d/conda.sh
+
+function arrow() {
+    conda activate arrow-dev
+    # export PATH=/home/wesm/miniconda/bin:$PATH
+    # source activate arrow-dev
+}
