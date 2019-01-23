@@ -5,6 +5,9 @@ export ARROW_GCC=gcc
 export ARROW_GXX=g++
 export ARROW_LLVM_VERSION=$ARROW_CLANG_VERSION
 
+# export CXX_ABI_OPTION='-D_GLIBCXX_USE_CXX11_ABI=0'
+export CXX_ABI_OPTION=
+
 export ARROW_ERROR_CONTEXT=ON
 export ARROW_WITH_FUZZING=OFF
 export ARROW_BUILD_BENCHMARKS=ON
@@ -25,8 +28,8 @@ export ARROW_USE_GLOG=ON
 export ARROW_USE_VALGRIND=ON
 export ARROW_OPTIONAL_INSTALL=ON
 
-export ARROW_BUILD_GPU=ON
-export PYARROW_WITH_CUDA=0
+export ARROW_BUILD_GPU=OFF
+export PYARROW_WITH_CUDA=1
 
 export PYARROW_WITH_ORC=1
 export PYARROW_WITH_PARQUET=1
@@ -53,8 +56,8 @@ function osx_toolchain {
 }
 
 function linux_toolchain {
-  export CC=clang-$ARROW_CLANG_VERSION
-  export CXX=clang++-$ARROW_CLANG_VERSION
+  # export CC=clang-$ARROW_CLANG_VERSION
+  # export CXX=clang++-$ARROW_CLANG_VERSION
   export CPP_TOOLCHAIN=$HOME/cpp-toolchain
   export CPP_RUNTIME_TOOLCHAIN=$HOME/cpp-runtime-toolchain
 }
@@ -130,13 +133,14 @@ function set_build_env() {
 
     export ARROW_INSTALL_DIR=$TP_DIR
 
+# -DCMAKE_CXX_FLAGS='-D_GLIBCXX_USE_CXX11_ABI=0' \
+
 export ARROW_GCC_OPTIONS="\
 $USE_NINJA_BUILD \
 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 -DCMAKE_INSTALL_PREFIX=$ARROW_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
 -DCMAKE_PREFIX_PATH=$TP_DIR \
--DCMAKE_CXX_FLAGS='-D_GLIBCXX_USE_CXX11_ABI=0' \
 -DARROW_OPTIONAL_INSTALL=$ARROW_OPTIONAL_INSTALL \
 -DARROW_VERBOSE_THIRDPARTY_BUILD=off \
 -DARROW_NO_DEPRECATED_API=on \
@@ -164,7 +168,7 @@ $USE_NINJA_BUILD \
 -DBOOST_ROOT=$ARROW_BOOST_ROOT \
 $EXTRA_ARROW_FLAGS"
 
-export PYARROW_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0"
+export PYARROW_CXXFLAGS="$CXX_ABI_OPTION"
     echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
     echo "CC: $CC"
     echo "CXX: $CXX"
@@ -211,8 +215,8 @@ function set_build_type_flags() {
 function toolchain_clang {
     # export CC=$CLANG_TOOLS_PATH/clang
     # export CXX=$CLANG_TOOLS_PATH/clang++
-    export CC=clang-$ARROW_CLANG_VERSION
-    export CXX=clang++-$ARROW_CLANG_VERSION
+    # export CC=clang-$ARROW_CLANG_VERSION
+    # export CXX=clang++-$ARROW_CLANG_VERSION
 
   export ARROW_TOOLCHAIN_FLAGS="\
 -DARROW_FUZZING=$ARROW_WITH_FUZZING \
@@ -286,7 +290,7 @@ function arrow_cpp_update {
     cmake -GNinja \
           -DCMAKE_INSTALL_PREFIX=$TP_DIR \
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
-          -DCMAKE_CXX_FLAGS='-D_GLIBCXX_USE_CXX11_ABI=0' \
+          -DCMAKE_CXX_FLAGS='$CXX_ABI_OPTION' \
           -DARROW_CXXFLAGS=$ARROW_CXXFLAGS \
           -DARROW_EXTRA_ERROR_CONTEXT=$ARROW_ERROR_CONTEXT \
           -DARROW_NO_DEPRECATED_API=OFF \
@@ -295,6 +299,7 @@ function arrow_cpp_update {
           -DARROW_BUILD_UTILITIES=off \
           -DARROW_JEMALLOC=$ARROW_USE_JEMALLOC \
           -DARROW_CUDA=$ARROW_BUILD_GPU \
+          -DARROW_GANDIVA=$ARROW_BUILD_GANDIVA \
           -DARROW_ORC=$ARROW_BUILD_ORC \
           -DARROW_PARQUET=$ARROW_BUILD_PARQUET \
           -DARROW_PLASMA=$ARROW_BUILD_PLASMA \
@@ -336,7 +341,7 @@ function arrow_glib_test {
     git clean -fdx .
     export PKG_CONFIG_PATH=$TP_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
     export GI_TYPELIB_PATH=$TP_DIR/lib/girepository-1.0
-    GLIB_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0"
+    GLIB_CXXFLAGS="$CXX_ABI_OPTION"
     ./autogen.sh
     ./configure CXXFLAGS=$GLIB_CXXFLAGS CFLAGS=$GLIB_CXXFLAGS \
                 --prefix=$TP_DIR --enable-gtk-doc
