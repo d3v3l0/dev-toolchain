@@ -8,10 +8,15 @@
 ;; colors to non-KDE apps."  Then, restart KDE.  Depending on your
 ;; version of KDE, the steps described here might be different.
 
-(if (or (eq system-type 'darwin) (eq system-type 'windows-nt))
-    (add-to-list 'load-path "/Users/wesm/.emacs.d/vendor")
-  (add-to-list 'load-path "/home/wesm/.emacs.d/vendor"))
+(set 'my-user-name (getenv "USER"))
 
+(if (or (eq system-type 'darwin) (eq system-type 'windows-nt))
+    (set 'my-home (concat "/Users/" my-user-name))
+    (set 'my-home (concat "/home/" my-user-name)))
+
+(set 'my-emacs-home (concat my-home "/.emacs.d"))
+(set 'my-vendor-path (concat my-emacs-home "/vendor"))
+(add-to-list 'load-path my-vendor-path)
 
 (load "auctex.el" nil t t)
 (load "preview-latex.el" nil t t)
@@ -37,21 +42,10 @@
 
 (setq-default indent-tabs-mode nil)
 
-(defun osx-setup ()
-  (add-to-list 'load-path "/Users/wesm/.emacs.d/vendor/neotree")
-  (yas/load-directory "/Users/wesm/.emacs.d/vendor/snippets")
-  (setq default-directory "/Users/wesm/code")
-  (setq temporary-file-directory "/Users/wesm/.emacs.tmp/"))
-
-(defun linux-setup ()
-  (add-to-list 'load-path "/home/wesm/.emacs.d/vendor/neotree")
-  (yas/load-directory "/home/wesm/.emacs.d/vendor/snippets")
-  (setq default-directory "/home/wesm/code")
-  (setq temporary-file-directory "/home/wesm/.emacs.tmp/"))
-
-(if (or (eq system-type 'darwin) (eq system-type 'windows-nt))
-    (osx-setup)
-  (linux-setup))
+(add-to-list 'load-path (concat my-vendor-path "/neotree"))
+(yas/load-directory (concat my-vendor-path "/snippets"))
+(setq default-directory (concat my-home "/code"))
+(setq temporary-file-directory (concat my-home "/.emacs.tmp"))
 
 (unless (file-exists-p temporary-file-directory)
   (make-directory temporary-file-directory))

@@ -13,6 +13,7 @@
 [plugins]
 [profiles]
   [[default]]
+    background_color = "#1e1e1e"
     cursor_blink = False
     cursor_color = "#aaaaaa"
     font = Terminus 13

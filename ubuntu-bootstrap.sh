@@ -2,9 +2,11 @@
 
 set -ex
 
-NIXCONFIG=$HOME/code/nixconfig
+ARROW_DIR=$HOME/code/arrow
+
+TOOLCHAIN_DIR=$HOME/code/dev-toolchain
 MINICONDA=$HOME/miniconda
-EMACS_VERSION=25.3
+# EMACS_VERSION=25.3
 
 export PATH=$MINICONDA/bin:$PATH
 
@@ -15,6 +17,13 @@ function env_ubuntu1404 {
 }
 
 function env_ubuntu1804 {
+    export UBUNTU_SHORTNAME=bionic
+    export EMACS_UBUNTU_VERSION=25
+    export RUBY_UBUNTU_VERSION=2.5
+}
+
+function env_ubuntu1810 {
+    export UBUNTU_SHORTNAME=cosmic
     export EMACS_UBUNTU_VERSION=25
     export RUBY_UBUNTU_VERSION=2.5
 }
@@ -23,8 +32,9 @@ function env_ubuntu1804 {
 function install_dotfiles() {
     mkdir -p $HOME/.config
 
-    ln -sf $NIXCONFIG/dotfiles/bash_personal ~/.bash_personal
-    ln -sf $NIXCONFIG/terminator ~/.config/terminator
+    ln -sf $TOOLCHAIN_DIR/dotfiles/bash_personal ~/.bash_personal
+    ln -sf $TOOLCHAIN_DIR/terminator ~/.config/terminator
+    
 }
 
 # Basic packages
@@ -74,8 +84,8 @@ function install_apt_packages_1404() {
 
 function install_apt_packages_1804() {
     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-    sudo apt-add-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main"
-    sudo apt-add-repository -y "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6.0 main"
+    sudo apt-add-repository -y "deb http://apt.llvm.org/$UBUNTU_SHORTNAME/ llvm-toolchain-$UBUNTU_SHORTNAME main"
+    sudo apt-add-repository -y "deb http://apt.llvm.org/$UBUNTU_SHORTNAME/ llvm-toolchain-$UBUNTU_SHORTNAME-6.0 main"
     sudo apt update
     install_apt_packages
 
@@ -107,43 +117,9 @@ function install_conda() {
 
 # C++ toolchain
 function install_cpp_toolchain() {
-    conda create -yq -p $HOME/cpp-toolchain \
-          boost-cpp \
-          flatbuffers \
-          rapidjson \
-          thrift-cpp \
-          snappy \
-          bzip2 \
-          zlib \
-          gflags \
-          gtest \
-          glog \
+    conda create -yq -p $HOME/cpp-toolchain --file=$ARROW_DIR/ci/conda_env_cpp.yml \
           re2 \
-          brotli \
-          lz4-c \
           ninja \
-          libprotobuf \
-          zstd \
-          -c conda-forge
-
-    conda install -yq -p $HOME/cpp-toolchain \
-          cmake \
-          git \
-          flatbuffers \
-          rapidjson \
-          thrift-cpp \
-          snappy \
-          zlib \
-          bzip2 \
-          gflags \
-          gtest \
-          glog \
-          re2 \
-          brotli \
-          lz4-c \
-          ninja \
-          libprotobuf \
-          zstd \
           -c conda-forge
 }
 
@@ -155,20 +131,14 @@ function install_cpp_runtime_toolchain() {
 
 # Install conda environments
 function create_conda_dev_environments() {
-    conda create -yq -n arrow-dev \
-          python=3.6
-
-    conda create -yq -n arrow-dev-2.7 \
+    conda create -yq -n arrow-3.7 \
+          python=3.7
+    conda create -yq -n arrow-2.7 \
           python=2.7
 }
 
 function install_conda_dev_environments() {
     ARROW_CONDA_DEPS="\
-          numpy \
-          six \
-          setuptools \
-          cython \
-          pandas \
           pytest \
           flake8 \
           cmake \
@@ -181,10 +151,11 @@ function install_conda_dev_environments() {
           setuptools_scm \
           matplotlib"
 
-    conda install -yq -n arrow-dev \
+    conda install -yq -n arrow-3.7 \
+	  --file=$ARROW_DIR/ci/conda_env_python.yml \
           $ARROW_CONDA_DEPS
-
-    conda install -yq -n arrow-dev-2.7 \
+    conda install -yq -n arrow-2.7 \
+	  --file=$ARROW_DIR/ci/conda_env_python.yml \
           $ARROW_CONDA_DEPS
 }
 
@@ -193,7 +164,7 @@ function install_emacs() {
     sudo apt-get build-dep -y emacs$EMACS_UBUNTU_VERSION
 
     rm -rf $HOME/.emacs.d
-    ln -sf $NIXCONFIG/emacs $HOME/.emacs.d
+    ln -sf $TOOLCHAIN_DIR/emacs $HOME/.emacs.d
 
     wget -O emacs.tar.gz http://ftp.gnu.org/gnu/emacs/emacs-$EMACS_VERSION.tar.xz
     tar xvf emacs.tar.gz
@@ -266,7 +237,7 @@ function install_go() {
 # Spotify
 function install_spotify() {
     sudo apt-add-repository -y "deb http://repository.spotify.com stable non-free"
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2C19886
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A87FF9DF48BF1C90
     sudo apt-get update -qq
     sudo apt-get install -y spotify-client
 }
@@ -300,6 +271,7 @@ function install_cuda() {
     sudo apt-get install nvidia-390
 }
 
+
 # function install_hugo() {
 #     go get github.com/magefile/mage
 #     go get -d github.com/gohugoio/hugo
@@ -310,11 +282,15 @@ function install_cuda() {
 
 # FIRST TIME? Make sure to uncomment all the deb-src entries in /etc/apt/sources.list
 
-env_ubuntu1404
+# env_ubuntu1404
 
 #install_apt_packages_1404
 
-# env_ubuntu1804
+env_ubuntu1810
+
+if [ ! -d "$ARROW_DIR" ]; then
+    git clone git@github.com:wesm/arrow.git $ARROW_DIR
+fi
 
 # install_apt_packages_1804
 # install_docker_1804
@@ -324,8 +300,8 @@ env_ubuntu1404
 # install_conda_dev_environments
 # install_cuda
 # install_ruby
-# install_dotfiles
+install_dotfiles
 # install_spotify
-install_cpp_toolchain
+# install_cpp_toolchain
 # install_cpp_runtime_toolchain
 # install_emacs
