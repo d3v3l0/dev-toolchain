@@ -8,15 +8,30 @@
 ;; colors to non-KDE apps."  Then, restart KDE.  Depending on your
 ;; version of KDE, the steps described here might be different.
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ns-command-modifier (quote meta))
+ '(package-selected-packages (quote (dash magit scala-mode2)))
+ '(user-emacs-directory-warning nil))
+
 (set 'my-user-name (getenv "USER"))
 
-(if (or (eq system-type 'darwin) (eq system-type 'windows-nt))
+(if (eq system-type 'darwin)
     (set 'my-home (concat "/Users/" my-user-name))
-    (set 'my-home (concat "/home/" my-user-name)))
+  (if (eq system-type 'windows-nt)
+      (set 'my-home (concat "C:/Users/" my-user-name))
+    (set 'my-home (concat "/home/" my-user-name))))
 
-(set 'my-emacs-home (concat my-home "/.emacs.d"))
+(set 'my-emacs-home (file-truename (concat my-home "/.emacs.d")))
 (set 'my-vendor-path (concat my-emacs-home "/vendor"))
 (add-to-list 'load-path my-vendor-path)
+
+(message my-home)
+(message my-emacs-home)
+(message my-vendor-path)
 
 (load "auctex.el" nil t t)
 (load "preview-latex.el" nil t t)
@@ -1132,14 +1147,6 @@ See `transpose-regions' for LEAVE-MARKERS."
       '(("dvips and PDF Viewer" "%(o?)dvips %d -o && open %f")
 	("PDF Viewer" "open %o")
 	("Safari" "open %o")))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ns-command-modifier (quote meta))
- '(package-selected-packages (quote (dash magit scala-mode2))))
 
 (setq-default line-spacing 1)
 
