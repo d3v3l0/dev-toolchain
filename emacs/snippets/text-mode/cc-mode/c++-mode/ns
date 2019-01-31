@@ -1,3 +1,5 @@
-#name : namespace ...
+#name : namespace ... { ... }
 # --
-namespace 
+namespace ${1:Name} {
+
+}  // namespace ${1:Name}
