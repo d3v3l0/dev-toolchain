@@ -21,13 +21,13 @@ export ARROW_BUILD_PARQUET=ON
 export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
-export ARROW_BUILD_FLIGHT=OFF
+export ARROW_BUILD_FLIGHT=ON
 export ARROW_BUILD_GANDIVA=ON
 export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_JEMALLOC=ON
 export ARROW_USE_GLOG=ON
 export ARROW_USE_LD_GOLD=OFF
-export ARROW_USE_VALGRIND=OFF
+export ARROW_USE_VALGRIND=ON
 export ARROW_OPTIONAL_INSTALL=ON
 
 export ARROW_BUILD_GPU=OFF
@@ -368,6 +368,9 @@ function arrow_preflight {
     arrow_cmake
     ninja format
     ninja lint || return
+    popd
+    pushd $ARROW_ROOT
+    ./run-cmake-format.py
     popd
     pushd $ARROW_ROOT/python
     flake8 --count pyarrow || return
