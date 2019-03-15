@@ -109,8 +109,6 @@ function set_build_env() {
     echo "Thirdparty dir: $TP_DIR"
     export ARROW_BOOST_ROOT=$CPP_TOOLCHAIN
 
-    export ARROW_BUILD_TOOLCHAIN=$CPP_TOOLCHAIN
-
     export BOOST_ROOT=$CPP_TOOLCHAIN
 
     # libprotobuf used by Orc EP build
@@ -139,6 +137,7 @@ function set_build_env() {
 
 export ARROW_GCC_OPTIONS="\
 $USE_NINJA_BUILD \
+-DARROW_PACKAGE_PREFIX=$CPP_TOOLCHAIN \
 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 -DCMAKE_INSTALL_PREFIX=$ARROW_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
@@ -291,6 +290,7 @@ function arrow_cpp_update {
     mkdir -p $ARROW_ROOT/cpp/library-build
     pushd $ARROW_ROOT/cpp/library-build
     cmake -GNinja \
+          -DARROW_PACKAGE_PREFIX=$CPP_TOOLCHAIN \
           -DCMAKE_INSTALL_PREFIX=$TP_DIR \
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
           -DCMAKE_CXX_FLAGS=$CXX_ABI_OPTION \
