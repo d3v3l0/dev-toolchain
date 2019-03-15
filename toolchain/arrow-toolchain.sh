@@ -16,14 +16,16 @@ export ARROW_BUILD_TESTS=ON
 export ARROW_BUILD_BZ2=ON
 export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_ZSTD=ON
-export ARROW_BUILD_ORC=OFF
+export ARROW_BUILD_ORC=ON
 export ARROW_BUILD_PARQUET=ON
 export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
 export ARROW_BUILD_FLIGHT=ON
+export ARROW_GFLAGS_USE_SHARED=OFF
+export ARROW_GTEST_VENDORED=ON
 export ARROW_BUILD_GANDIVA=ON
-export ARROW_BUILD_GANDIVA_JNI=OFF
+export ARROW_BUILD_GANDIVA_JNI=ON
 export ARROW_USE_JEMALLOC=ON
 export ARROW_USE_GLOG=ON
 export ARROW_USE_LD_GOLD=OFF
@@ -33,7 +35,7 @@ export ARROW_OPTIONAL_INSTALL=ON
 export ARROW_BUILD_GPU=OFF
 export PYARROW_WITH_CUDA=0
 
-export PYARROW_WITH_ORC=0
+export PYARROW_WITH_ORC=1
 export PYARROW_WITH_PARQUET=1
 export PYARROW_WITH_PLASMA=1
 export PYARROW_BUNDLE_ARROW_CPP=0
@@ -303,6 +305,7 @@ function arrow_cpp_update {
           -DARROW_JEMALLOC=$ARROW_USE_JEMALLOC \
           -DARROW_CUDA=$ARROW_BUILD_GPU \
           -DARROW_GANDIVA=$ARROW_BUILD_GANDIVA \
+          -DARROW_GFLAGS_USE_SHARED=$ARROW_GFLAGS_USE_SHARED \
           -DARROW_ORC=$ARROW_BUILD_ORC \
           -DARROW_PARQUET=$ARROW_BUILD_PARQUET \
           -DARROW_PLASMA=$ARROW_BUILD_PLASMA \
@@ -345,9 +348,9 @@ function arrow_glib_test {
     git clean -fdx .
     export PKG_CONFIG_PATH=$TP_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
     export GI_TYPELIB_PATH=$TP_DIR/lib/girepository-1.0
-    GLIB_CXXFLAGS="$CXX_ABI_OPTION"
+    GLIB_CXXFLAGS="$CXX_ABI_OPTION -ggdb -O0"
     ./autogen.sh
-    ./configure CXXFLAGS=$GLIB_CXXFLAGS CFLAGS=$GLIB_CXXFLAGS \
+    ./configure CXXFLAGS="$GLIB_CXXFLAGS" CFLAGS="$GLIB_CXXFLAGS" \
                 --prefix=$TP_DIR --enable-gtk-doc
     CXXFLAGS=$GLIB_CXXFLAGS CFLAGS=$GLIB_CXXFLAGS make -j8
     make install
@@ -372,6 +375,7 @@ function arrow_preflight {
     pushd $ARROW_ROOT
     ./run-cmake-format.py
     popd
+    flake8 $ARROW_ROOT/dev || return
     pushd $ARROW_ROOT/python
     flake8 --count pyarrow || return
     flake8 --count --config=.flake8.cython pyarrow || return
