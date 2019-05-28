@@ -16,7 +16,7 @@ export ARROW_BUILD_TESTS=ON
 export ARROW_BUILD_BZ2=ON
 export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_ZSTD=ON
-export ARROW_BUILD_ORC=ON
+export ARROW_BUILD_ORC=OFF
 export ARROW_BUILD_PARQUET=ON
 export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
@@ -26,18 +26,22 @@ export ARROW_GFLAGS_USE_SHARED=OFF
 export ARROW_GTEST_VENDORED=ON
 export ARROW_BUILD_GANDIVA=ON
 export ARROW_BUILD_GANDIVA_JNI=ON
-export ARROW_USE_JEMALLOC=ON
+export ARROW_USE_CCACHE=ON
+export ARROW_USE_JEMALLOC=OFF
 export ARROW_USE_GLOG=ON
 export ARROW_USE_LD_GOLD=OFF
-export ARROW_USE_VALGRIND=ON
+export ARROW_USE_VALGRIND=OFF
 export ARROW_OPTIONAL_INSTALL=ON
 
 export ARROW_BUILD_GPU=OFF
 export PYARROW_WITH_CUDA=0
 
-export PYARROW_WITH_ORC=1
+export PYARROW_WITH_FLIGHT=1
+export PYARROW_WITH_ORC=0
 export PYARROW_WITH_PARQUET=1
 export PYARROW_WITH_PLASMA=1
+export PYARROW_WITH_GANDIVA=1
+
 export PYARROW_BUNDLE_ARROW_CPP=0
 export PYARROW_BUNDLE_BOOST=0
 export PYARROW_PARALLEL=4
@@ -137,6 +141,8 @@ function set_build_env() {
 
 # -DCMAKE_CXX_FLAGS='-D_GLIBCXX_USE_CXX11_ABI=0' \
 
+    export ARROW_BUILD_TOOLCHAIN=$CPP_TOOLCHAIN
+
 export ARROW_GCC_OPTIONS="\
 $USE_NINJA_BUILD \
 -DARROW_DEPENDENCY_SOURCE=SYSTEM \
@@ -160,6 +166,7 @@ $USE_NINJA_BUILD \
 -DARROW_GANDIVA_STATIC_LIBSTDCPP=OFF \
 -DARROW_HDFS=on \
 -DARROW_HIVESERVER2=$ARROW_BUILD_HIVESERVER2 \
+-DARROW_USE_CCACHE=$ARROW_USE_CCACHE \
 -DARROW_USE_GLOG=$ARROW_USE_GLOG \
 -DARROW_USE_LD_GOLD=$ARROW_USE_LD_GOLD \
 -DARROW_JEMALLOC=$ARROW_USE_JEMALLOC \
@@ -190,7 +197,7 @@ function debug() {
 $ARROW_TOOLCHAIN_FLAGS
 -DBUILD_WARNING_LEVEL=CHECKIN"
 
-  export ARROW_CXXFLAGS="-fno-omit-frame-pointer"
+  export ARROW_CXXFLAGS="-fno-omit-frame-pointer -Wdocumentation"
 
   export ASAN_IF_ENABLED=OFF
 
@@ -203,8 +210,9 @@ function release() {
 
   export ASAN_IF_ENABLED=OFF
 
-  export ARROW_CXXFLAGS='-fno-omit-frame-pointer'
-  export EXTRA_ARROW_FLAGS=""
+  # export ARROW_CXXFLAGS='-fno-omit-frame-pointer'
+  export ARROW_CXXFLAGS=''
+  export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
 
   set_build_env
 }
@@ -258,7 +266,6 @@ function toolchain_gcc48 {
 toolchain_clang
 
 export PATH=$CPP_TOOLCHAIN/bin:$PATH
-export ARROW_USE_CCACHE=1
 
 # export TERM=xterm-color
 
@@ -289,7 +296,7 @@ export ARROW_HDFS_TEST_PORT=20500
 export ARROW_HDFS_TEST_USER=wesm
 
 function arrow_cpp_update {
-    rm -rf $ARROW_ROOT/cpp/library-build
+    # rm -rf $ARROW_ROOT/cpp/library-build
     mkdir -p $ARROW_ROOT/cpp/library-build
     pushd $ARROW_ROOT/cpp/library-build
     cmake -GNinja \
@@ -306,6 +313,7 @@ function arrow_cpp_update {
           -DARROW_BUILD_UTILITIES=off \
           -DARROW_JEMALLOC=$ARROW_USE_JEMALLOC \
           -DARROW_CUDA=$ARROW_BUILD_GPU \
+          -DARROW_FLIGHT=$ARROW_BUILD_FLIGHT \
           -DARROW_GANDIVA=$ARROW_BUILD_GANDIVA \
           -DARROW_GFLAGS_USE_SHARED=$ARROW_GFLAGS_USE_SHARED \
           -DARROW_ORC=$ARROW_BUILD_ORC \

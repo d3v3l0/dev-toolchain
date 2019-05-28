@@ -2,6 +2,16 @@
   handle_size = 1
   inactive_color_offset = 1.0
 [keybindings]
+[profiles]
+  [[default]]
+    cursor_blink = False
+    cursor_color = "#aaaaaa"
+    font = Terminus 13
+    foreground_color = "#f3f3f3"
+    show_titlebar = False
+    scrollbar_position = hidden
+    scrollback_lines = 9999
+    use_system_font = False
 [layouts]
   [[default]]
     [[[child1]]]
@@ -11,13 +21,3 @@
       parent = ""
       type = Window
 [plugins]
-[profiles]
-  [[default]]
-    background_color = "#1e1e1e"
-    cursor_blink = False
-    cursor_color = "#aaaaaa"
-    font = Terminus 13
-    scrollback_lines = 9999
-    scrollbar_position = hidden
-    show_titlebar = False
-    use_system_font = False

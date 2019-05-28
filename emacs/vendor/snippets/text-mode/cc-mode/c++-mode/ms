@@ -1,0 +1,3 @@
+#name : make_shared ...
+# --
+std::make_shared<${1:Name}>($0)

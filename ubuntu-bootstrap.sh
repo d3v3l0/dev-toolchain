@@ -34,7 +34,7 @@ function install_dotfiles() {
 
     ln -sf $TOOLCHAIN_DIR/dotfiles/bash_personal ~/.bash_personal
     ln -sf $TOOLCHAIN_DIR/terminator ~/.config/terminator
-    
+
 }
 
 # Basic packages
@@ -126,6 +126,15 @@ function install_cpp_toolchain() {
 function install_cpp_runtime_toolchain() {
     conda create -yq -p $HOME/cpp-runtime-toolchain \
           boost-cpp \
+          grpc-cpp \
+          glog \
+          libprotobuf \
+          zstd \
+          lz4-c \
+          bzip2 \
+          zlib \
+          snappy \
+          thrift-cpp \
           -c conda-forge
 }
 
@@ -295,12 +304,12 @@ fi
 # install_apt_packages_1804
 # install_docker_1804
 
-# install_conda
-# create_conda_dev_environments
-# install_conda_dev_environments
+install_conda
+create_conda_dev_environments
+install_conda_dev_environments
 # install_cuda
 # install_ruby
-install_dotfiles
+# install_dotfiles
 # install_spotify
 # install_cpp_toolchain
 # install_cpp_runtime_toolchain
