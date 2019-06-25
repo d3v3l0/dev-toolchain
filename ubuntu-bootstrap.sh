@@ -28,6 +28,12 @@ function env_ubuntu1810 {
     export RUBY_UBUNTU_VERSION=2.5
 }
 
+function env_ubuntu1904 {
+    export UBUNTU_SHORTNAME=disco
+    export EMACS_UBUNTU_VERSION=25
+    export RUBY_UBUNTU_VERSION=2.5
+}
+
 # Dotfiles
 function install_dotfiles() {
     mkdir -p $HOME/.config
@@ -62,7 +68,7 @@ function install_apt_packages() {
          filezilla \
          bcrypt
 
-    LLVM_VERSION=6.0
+    LLVM_VERSION=7
 
     sudo apt-get install -y \
          libllvm$LLVM_VERSION \
@@ -89,9 +95,10 @@ function install_apt_packages_1804() {
     sudo apt update
     install_apt_packages
 
+#         gcc-4.8 \
+#         g++-4.8 \
+ 
     sudo apt install -y \
-         gcc-4.8 \
-         g++-4.8 \
          redshift \
          redshift-gtk
 
@@ -133,6 +140,7 @@ function install_cpp_runtime_toolchain() {
           lz4-c \
           bzip2 \
           zlib \
+	  re2 \
           snappy \
           thrift-cpp \
           -c conda-forge
@@ -175,19 +183,19 @@ function install_emacs() {
     rm -rf $HOME/.emacs.d
     ln -sf $TOOLCHAIN_DIR/emacs $HOME/.emacs.d
 
-    wget -O emacs.tar.gz http://ftp.gnu.org/gnu/emacs/emacs-$EMACS_VERSION.tar.xz
-    tar xvf emacs.tar.gz
-    pushd emacs-$EMACS_VERSION
-    ./configure
-    make -j8
-    sudo make install
-    popd
-    rm -rf emacs-$EMACS_VERSION
-    rm emacs.tar.gz
+#    wget -O emacs.tar.gz http://ftp.gnu.org/gnu/emacs/emacs-$EMACS_VERSION.tar.xz
+#    tar xvf emacs.tar.gz
+#    pushd emacs-$EMACS_VERSION
+#    ./configure
+#    make -j8
+#    sudo make install
+#    popd
+#    rm -rf emacs-$EMACS_VERSION
+#    rm emacs.tar.gz
 }
 
 # Install Ruby
-function install_ruby() {
+function install_ruby_source() {
     sudo apt-get build-dep -y ruby$RUBY_UBUNTU_VERSION
     RUBY_VERSION=2.5.0
     wget -O ruby.tar.gz https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.0.tar.gz
@@ -199,6 +207,10 @@ function install_ruby() {
     popd
     rm -rf ruby-$RUBY_VERSION
     rm -rf ruby.tar.gz
+}
+
+function install_ruby() {
+    sudo apt-get install -y ruby-dev
 }
 
 # Setup Docker
@@ -230,6 +242,10 @@ function install_docker_1804() {
     sudo apt install -y docker.io
 
     sudo usermod -aG docker $USER
+}
+
+function install_docker_1904() {
+    install_docker_1804
 }
 
 # Golang
@@ -295,22 +311,22 @@ function install_cuda() {
 
 #install_apt_packages_1404
 
-env_ubuntu1810
+env_ubuntu1904
 
-if [ ! -d "$ARROW_DIR" ]; then
-    git clone git@github.com:wesm/arrow.git $ARROW_DIR
-fi
+# if [ ! -d "$ARROW_DIR" ]; then
+#    git clone git@github.com:wesm/arrow.git $ARROW_DIR
+# fi
 
 # install_apt_packages_1804
-# install_docker_1804
+install_docker_1904
 
-install_conda
-create_conda_dev_environments
-install_conda_dev_environments
+# install_conda
+# create_conda_dev_environments
+# install_conda_dev_environments
 # install_cuda
 # install_ruby
-# install_dotfiles
+install_dotfiles
 # install_spotify
-# install_cpp_toolchain
-# install_cpp_runtime_toolchain
+install_cpp_toolchain
+install_cpp_runtime_toolchain
 # install_emacs
