@@ -97,7 +97,7 @@ function install_apt_packages_1804() {
 
 #         gcc-4.8 \
 #         g++-4.8 \
- 
+
     sudo apt install -y \
          redshift \
          redshift-gtk
@@ -133,7 +133,9 @@ function install_cpp_toolchain() {
 function install_cpp_runtime_toolchain() {
     conda create -yq -p $HOME/cpp-runtime-toolchain \
           boost-cpp \
+          c-ares \
           grpc-cpp \
+          gflags \
           glog \
           libprotobuf \
           zstd \
@@ -318,7 +320,7 @@ env_ubuntu1904
 # fi
 
 # install_apt_packages_1804
-install_docker_1904
+# install_docker_1904
 
 # install_conda
 # create_conda_dev_environments
@@ -327,6 +329,6 @@ install_docker_1904
 # install_ruby
 install_dotfiles
 # install_spotify
-install_cpp_toolchain
-install_cpp_runtime_toolchain
+# install_cpp_toolchain
+# install_cpp_runtime_toolchain
 # install_emacs

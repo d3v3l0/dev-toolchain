@@ -25,7 +25,7 @@ export ARROW_BUILD_FLIGHT=ON
 export ARROW_GFLAGS_USE_SHARED=OFF
 export ARROW_GTEST_VENDORED=ON
 export ARROW_BUILD_GANDIVA=ON
-export ARROW_BUILD_GANDIVA_JNI=ON
+export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_CCACHE=ON
 export ARROW_USE_JEMALLOC=OFF
 export ARROW_USE_GLOG=ON
@@ -54,6 +54,7 @@ export DEVELOPER_DIR=$XCODE_ROOT
 export USE_NINJA_BUILD=-GNinja
 
 export ARROW_ROOT=$HOME/code/arrow
+export ARROW_TEST_DATA=$ARROW_ROOT/testing/data
 export PARQUET_TEST_DATA=$ARROW_ROOT/cpp/submodules/parquet-testing/data
 
 function osx_toolchain {
@@ -178,6 +179,7 @@ $USE_NINJA_BUILD \
 -DARROW_PYTHON=$ARROW_BUILD_PYTHON \
 -DARROW_CUDA=$ARROW_BUILD_GPU \
 -DBOOST_ROOT=$ARROW_BOOST_ROOT \
+-Duriparser_SOURCE=BUNDLED \
 $EXTRA_ARROW_FLAGS"
 
 export PYARROW_CXXFLAGS="$CXX_ABI_OPTION"
@@ -197,7 +199,7 @@ function debug() {
 $ARROW_TOOLCHAIN_FLAGS
 -DBUILD_WARNING_LEVEL=CHECKIN"
 
-  export ARROW_CXXFLAGS="-fno-omit-frame-pointer -Wdocumentation"
+  export ARROW_CXXFLAGS="-fno-omit-frame-pointer"
 
   export ASAN_IF_ENABLED=OFF
 
@@ -210,8 +212,7 @@ function release() {
 
   export ASAN_IF_ENABLED=OFF
 
-  # export ARROW_CXXFLAGS='-fno-omit-frame-pointer'
-  export ARROW_CXXFLAGS=''
+  export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
   export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
 
   set_build_env
@@ -324,7 +325,9 @@ function arrow_cpp_update {
           -DARROW_WITH_BZ2=$ARROW_BUILD_BZ2 \
           -DARROW_WITH_ZSTD=$ARROW_BUILD_ZSTD \
           -DARROW_BUILD_TESTS=off \
-          -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE ..
+          -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
+          -Duriparser_SOURCE=BUNDLED \
+          ..
     ninja clean
     ninja
     ninja install

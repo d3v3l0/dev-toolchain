@@ -203,7 +203,7 @@ export PATH=$HOME/R/bin:$PATH
 #----------------------------------------------------------------------
 # Go stuff
 
-export GOROOT=/opt/go1.11
+export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
@@ -235,8 +235,7 @@ export NVM_DIR="$HOME/.nvm"
 # https://support.enthought.com/hc/en-us/articles/204469320-Linux-IPython-in-terminal-error-setupterm-could-not-find-terminfo-database-
 export TERM="xterm-256color"
 
-. /home/wesm/miniconda/etc/profile.d/conda.sh
-
 function arrow() {
+    . /home/wesm/miniconda/etc/profile.d/conda.sh
     conda activate arrow-3.7
 }
