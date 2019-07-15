@@ -6,32 +6,15 @@ ARROW_DIR=$HOME/code/arrow
 
 TOOLCHAIN_DIR=$HOME/code/dev-toolchain
 MINICONDA=$HOME/miniconda
-# EMACS_VERSION=25.3
+UBUNTU_SHORTNAME=$(lsb_release -cs)
+RUBY_UBUNTU_VERSION=2.5
 
 export PATH=$MINICONDA/bin:$PATH
 
-
-function env_ubuntu1404 {
-    export EMACS_UBUNTU_VERSION=23
-    export RUBY_UBUNTU_VERSION=2.0
-}
-
-function env_ubuntu1804 {
-    export UBUNTU_SHORTNAME=bionic
-    export EMACS_UBUNTU_VERSION=25
-    export RUBY_UBUNTU_VERSION=2.5
-}
-
-function env_ubuntu1810 {
-    export UBUNTU_SHORTNAME=cosmic
-    export EMACS_UBUNTU_VERSION=25
-    export RUBY_UBUNTU_VERSION=2.5
-}
-
-function env_ubuntu1904 {
-    export UBUNTU_SHORTNAME=disco
-    export EMACS_UBUNTU_VERSION=25
-    export RUBY_UBUNTU_VERSION=2.5
+function yubico_setup {
+  sudo apt-get install -y wget
+  wget https://github.com/Yubico/libu2f-host/blob/master/70-u2f.rules
+  sudo mv 70-u2f.rules /etc/udev/rules.d/
 }
 
 # Dotfiles
@@ -40,7 +23,16 @@ function install_dotfiles() {
 
     ln -sf $TOOLCHAIN_DIR/dotfiles/bash_personal ~/.bash_personal
     ln -sf $TOOLCHAIN_DIR/terminator ~/.config/terminator
+    ln -sf $TOOLCHAIN_DIR/gitconfig ~/.gitconfig
 
+BASHRC_ADDITION=$(cat <<-END
+if [ -f ~/.bash_personal ]; then
+    . ~/.bash_personal
+fi
+END
+)
+  echo "$BASHRC_ADDITION" >> ~/.bashrc
+  echo "export EMACS_FONT=Terminus-14" >> ~/.bashrc
 }
 
 # Basic packages
@@ -91,17 +83,12 @@ function install_apt_packages_1404() {
 function install_apt_packages_1804() {
     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
     sudo apt-add-repository -y "deb http://apt.llvm.org/$UBUNTU_SHORTNAME/ llvm-toolchain-$UBUNTU_SHORTNAME main"
-    sudo apt-add-repository -y "deb http://apt.llvm.org/$UBUNTU_SHORTNAME/ llvm-toolchain-$UBUNTU_SHORTNAME-6.0 main"
     sudo apt update
     install_apt_packages
-
-#         gcc-4.8 \
-#         g++-4.8 \
 
     sudo apt install -y \
          redshift \
          redshift-gtk
-
 }
 
 
@@ -124,9 +111,9 @@ function install_conda() {
 
 # C++ toolchain
 function install_cpp_toolchain() {
-    conda create -yq -p $HOME/cpp-toolchain --file=$ARROW_DIR/ci/conda_env_cpp.yml \
-          re2 \
-          ninja \
+    conda create -yq -p $HOME/cpp-toolchain \
+	  --file=$ARROW_DIR/ci/conda_env_cpp.yml \
+	  --file=$ARROW_DIR/ci/conda_env_gandiva.yml \
           -c conda-forge
 }
 
@@ -178,22 +165,9 @@ function install_conda_dev_environments() {
           $ARROW_CONDA_DEPS
 }
 
-# Build and install emacs
 function install_emacs() {
-    sudo apt-get build-dep -y emacs$EMACS_UBUNTU_VERSION
-
     rm -rf $HOME/.emacs.d
     ln -sf $TOOLCHAIN_DIR/emacs $HOME/.emacs.d
-
-#    wget -O emacs.tar.gz http://ftp.gnu.org/gnu/emacs/emacs-$EMACS_VERSION.tar.xz
-#    tar xvf emacs.tar.gz
-#    pushd emacs-$EMACS_VERSION
-#    ./configure
-#    make -j8
-#    sudo make install
-#    popd
-#    rm -rf emacs-$EMACS_VERSION
-#    rm emacs.tar.gz
 }
 
 # Install Ruby
@@ -235,7 +209,7 @@ function setup_docker() {
     sudo usermod -aG docker $USER
 }
 
-function install_docker_1804() {
+function install_docker() {
     sudo apt-get -y install \
          apt-transport-https \
          ca-certificates \
@@ -244,10 +218,6 @@ function install_docker_1804() {
     sudo apt install -y docker.io
 
     sudo usermod -aG docker $USER
-}
-
-function install_docker_1904() {
-    install_docker_1804
 }
 
 # Golang
@@ -263,10 +233,17 @@ function install_go() {
 
 # Spotify
 function install_spotify() {
-    sudo apt-add-repository -y "deb http://repository.spotify.com stable non-free"
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A87FF9DF48BF1C90
-    sudo apt-get update -qq
-    sudo apt-get install -y spotify-client
+  # 1. Add the Spotify repository signing keys to be able to verify downloaded packages
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+
+  # 2. Add the Spotify repository
+  echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
+
+  # 3. Update list of available packages
+  sudo apt-get update
+
+  # 4. Install Spotify
+  sudo apt-get install -y spotify-client
 }
 
 # Install cuda
@@ -309,18 +286,12 @@ function install_cuda() {
 
 # FIRST TIME? Make sure to uncomment all the deb-src entries in /etc/apt/sources.list
 
-# env_ubuntu1404
-
-#install_apt_packages_1404
-
-env_ubuntu1904
-
-# if [ ! -d "$ARROW_DIR" ]; then
-#    git clone git@github.com:wesm/arrow.git $ARROW_DIR
-# fi
+if [ ! -d "$ARROW_DIR" ]; then
+   git clone https://github.com/wesm/arrow.git $ARROW_DIR
+fi
 
 # install_apt_packages_1804
-# install_docker_1904
+# install_docker
 
 # install_conda
 # create_conda_dev_environments
