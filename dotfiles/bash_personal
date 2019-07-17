@@ -201,13 +201,6 @@ function pull-upstream {
 export PATH=$HOME/R/bin:$PATH
 
 #----------------------------------------------------------------------
-# Go stuff
-
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-
-#----------------------------------------------------------------------
 # hs2client development
 
 export HS2CLIENT_HOME=$HOME/local

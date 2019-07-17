@@ -2,6 +2,8 @@
 
 set -ex
 
+# For R stuff, follow https://cran.r-project.org/bin/linux/ubuntu/README.html
+
 ARROW_DIR=$HOME/code/arrow
 
 TOOLCHAIN_DIR=$HOME/code/dev-toolchain
@@ -37,8 +39,10 @@ END
 
 # Basic packages
 function install_apt_packages() {
-
     sudo apt install -y \
+         autoconf-archive \
+         gtk-doc-tools \
+         libgirepository1.0-dev \
          xfonts-terminus \
          gnome-tweak-tool \
          gnome-session-flashback \
@@ -48,6 +52,7 @@ function install_apt_packages() {
          xsel \
          libssl-dev \
          valgrind \
+         jq \
          gdb \
          bison \
          flex \
@@ -58,7 +63,8 @@ function install_apt_packages() {
          subversion \
          cloc \
          filezilla \
-         bcrypt
+         bcrypt \
+         libcurl4-openssl-dev
 
     LLVM_VERSION=7
 
@@ -163,6 +169,10 @@ function install_conda_dev_environments() {
     conda install -yq -n arrow-2.7 \
 	  --file=$ARROW_DIR/ci/conda_env_python.yml \
           $ARROW_CONDA_DEPS
+
+    conda activate arrow-3.7
+    pip install cmake_format==0.5.2
+    conda deactivate
 }
 
 function install_emacs() {
@@ -218,15 +228,37 @@ function install_docker() {
     sudo apt install -y docker.io
 
     sudo usermod -aG docker $USER
+
+    # install docker-compose
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+    sudo chmod +x /usr/local/bin/docker-compose
 }
 
 # Golang
 
 function install_go() {
-    wget -O golang.tar.gz https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
-    tar xvf golang.tar.gz
+    local OS=linux
+    local ARCH=amd64
+    local VERSION=1.12.7
 
-    rm -f golang.tar.gz
+    local GO_ARCHIVE=go$VERSION.$OS-$ARCH.tar.gz
+    wget https://dl.google.com/go/$GO_ARCHIVE
+    sudo tar -xzf $GO_ARCHIVE
+
+    # idempotence
+    sudo rm -rf /opt/go$VERSION
+    sudo mv go/ /opt/go$VERSION
+
+    rm -f $GO_ARCHIVE
+
+BASHRC_ADDITION=$(cat <<-END
+export GOROOT=/opt/go$VERSION
+export GOPATH=\$HOME/go
+export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
+END
+)
+  echo "$BASHRC_ADDITION" >> ~/.bashrc
 }
 
 # Ocaml
@@ -276,13 +308,12 @@ function install_cuda() {
 }
 
 
-# function install_hugo() {
-#     go get github.com/magefile/mage
-#     go get -d github.com/gohugoio/hugo
-#     cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
-#     mage vendor
-#     mage install
-# }
+function install_hugo() {
+    go get github.com/magefile/mage
+    go get -d github.com/gohugoio/hugo
+    cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
+    go install
+}
 
 # FIRST TIME? Make sure to uncomment all the deb-src entries in /etc/apt/sources.list
 
@@ -298,8 +329,11 @@ fi
 # install_conda_dev_environments
 # install_cuda
 # install_ruby
-install_dotfiles
+# install_dotfiles
 # install_spotify
 # install_cpp_toolchain
 # install_cpp_runtime_toolchain
 # install_emacs
+
+# install_go
+# install_hugo

@@ -44,7 +44,7 @@ export PYARROW_WITH_GANDIVA=1
 
 export PYARROW_BUNDLE_ARROW_CPP=0
 export PYARROW_BUNDLE_BOOST=0
-export PYARROW_PARALLEL=4
+export PYARROW_PARALLEL=$(nproc)
 export PYARROW_CMAKE_GENERATOR=Ninja
 
 export XCODE_ROOT=/Applications/Xcode.app/Contents/Developer
@@ -297,9 +297,9 @@ export ARROW_HDFS_TEST_PORT=20500
 export ARROW_HDFS_TEST_USER=wesm
 
 function arrow_cpp_update {
-    # rm -rf $ARROW_ROOT/cpp/library-build
-    mkdir -p $ARROW_ROOT/cpp/library-build
-    pushd $ARROW_ROOT/cpp/library-build
+    _PYTHON_VERSION=$(python -c "import sys; print('{0}.{1}'.format(sys.version_info.major, sys.version_info.minor))")
+    mkdir -p $ARROW_ROOT/cpp/library-build-$_PYTHON_VERSION
+    pushd $ARROW_ROOT/cpp/library-build-$_PYTHON_VERSION
     cmake -GNinja \
           -DARROW_DEPENDENCY_SOURCE=SYSTEM \
           -DARROW_PACKAGE_PREFIX=$CPP_TOOLCHAIN \
@@ -328,7 +328,6 @@ function arrow_cpp_update {
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
           -Duriparser_SOURCE=BUNDLED \
           ..
-    ninja clean
     ninja
     ninja install
     popd
