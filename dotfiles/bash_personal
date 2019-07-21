@@ -200,6 +200,9 @@ function pull-upstream {
 
 export PATH=$HOME/R/bin:$PATH
 
+# ---------------------------------------------------------------------
+# Ruby stuff
+
 #----------------------------------------------------------------------
 # hs2client development
 
@@ -213,13 +216,6 @@ export EMACS_FONT="Terminus-12"
 . $TOOLCHAIN_FILES/book-toolchain.sh
 
 export LD_LIBRARY_PATH=$HOME/Qt/5.7/gcc_64/lib:$LD_LIBRARY_PATH
-
-# ----------------------------------------------------------------------
-# NVM
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # ----------------------------------------------------------------------
 # Set up conda, activate arrow-dev by default

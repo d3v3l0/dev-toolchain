@@ -48,6 +48,7 @@ function install_apt_packages() {
          gnome-session-flashback \
          pandoc \
          ccache \
+         cmake \
          terminator \
          xsel \
          libssl-dev \
@@ -56,6 +57,9 @@ function install_apt_packages() {
          gdb \
          bison \
          flex \
+         openjdk-8-jdk-headless \
+         openjdk-11-jdk-headless \
+         maven \
          pkg-config \
          autoconf \
          automake \
@@ -196,7 +200,15 @@ function install_ruby_source() {
 }
 
 function install_ruby() {
-    sudo apt-get install -y ruby-dev
+  sudo apt-get install -y ruby-dev
+BASHRC_ADDITION=$(cat <<-END
+export GEM_HOME=~/.gem
+export PATH=\$PATH:\$GEM_HOME/bin
+END
+)
+  echo "$BASHRC_ADDITION" >> ~/.bashrc
+
+  gem install bundler
 }
 
 # Setup Docker
@@ -315,6 +327,10 @@ function install_hugo() {
     go install
 }
 
+function install_node() {
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+}
+
 # FIRST TIME? Make sure to uncomment all the deb-src entries in /etc/apt/sources.list
 
 if [ ! -d "$ARROW_DIR" ]; then
@@ -337,3 +353,5 @@ fi
 
 # install_go
 # install_hugo
+
+install_node
