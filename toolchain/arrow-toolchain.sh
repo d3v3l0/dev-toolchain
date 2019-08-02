@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export ARROW_CLANG_VERSION=6.0
+export ARROW_CLANG_VERSION=7
 export ARROW_GCC=gcc
 export ARROW_GXX=g++
 export ARROW_LLVM_VERSION=$ARROW_CLANG_VERSION
@@ -65,8 +65,8 @@ function osx_toolchain {
 }
 
 function linux_toolchain {
-  # export CC=clang-$ARROW_CLANG_VERSION
-  # export CXX=clang++-$ARROW_CLANG_VERSION
+  export CC=clang-$ARROW_CLANG_VERSION
+  export CXX=clang++-$ARROW_CLANG_VERSION
   export CPP_TOOLCHAIN=$HOME/cpp-toolchain
   export CPP_RUNTIME_TOOLCHAIN=$HOME/cpp-runtime-toolchain
 }
@@ -378,6 +378,11 @@ function arrow_preflight {
     mkdir -p $ARROW_PREFLIGHT_DIR
     pushd $ARROW_ROOT/cpp
     python build-support/lint_cpp_cli.py src || return
+
+    pushd apidoc
+    doxygen || return
+    popd
+
     popd
     pushd $ARROW_PREFLIGHT_DIR
     arrow_cmake
