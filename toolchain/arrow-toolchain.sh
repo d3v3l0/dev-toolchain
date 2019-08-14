@@ -116,6 +116,8 @@ function set_build_env() {
     echo "Thirdparty dir: $TP_DIR"
     export ARROW_BOOST_ROOT=$CPP_TOOLCHAIN
 
+    export ARROW_R_DEV=TRUE
+
     export BOOST_ROOT=$CPP_TOOLCHAIN
 
     # libprotobuf used by Orc EP build
@@ -129,6 +131,8 @@ function set_build_env() {
     export PATH=$CPP_TOOLCHAIN/bin:$PATH_BAK
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BAK:$TP_DIR/lib
     export LD_LIBRARY_PATH=$CPP_RUNTIME_TOOLCHAIN/lib:$LD_LIBRARY_PATH
+
+    export R_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
     # export GTEST_HOME=$CPP_TOOLCHAIN
 
@@ -184,9 +188,11 @@ $EXTRA_ARROW_FLAGS"
 
 export PYARROW_CXXFLAGS="$CXX_ABI_OPTION"
     echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+    echo "R_LD_LIBRARY_PATH: $R_LD_LIBRARY_PATH"
     echo "CC: $CC"
     echo "CXX: $CXX"
     echo "ARROW_CXXFLAGS: $ARROW_CXXFLAGS"
+    echo "ARROW_R_CXXFLAGS: $ARROW_R_CXXFLAGS"
     echo "ARROW_OPTIONS: $ARROW_GCC_OPTIONS"
     echo "PYARROW_CXXFLAGS: $ARROW_CXXFLAGS"
 }
@@ -200,8 +206,9 @@ $ARROW_TOOLCHAIN_FLAGS
 -DBUILD_WARNING_LEVEL=CHECKIN"
 
   export ARROW_CXXFLAGS="-fno-omit-frame-pointer"
+  export ARROW_R_CXXFLAGS="-fno-omit-frame-pointer"
 
-  export ASAN_IF_ENABLED=OFF
+  export USE_ASAN=ON
 
   set_build_env
 }
@@ -210,7 +217,7 @@ function release() {
   export TP_DIR=$RELEASE_TP_DIR
   export TOOLCHAIN_BUILD_TYPE=release
 
-  export ASAN_IF_ENABLED=OFF
+  export USE_ASAN=OFF
 
   export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
   export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
@@ -235,7 +242,7 @@ function toolchain_clang {
   export ARROW_TOOLCHAIN_FLAGS="\
 -DARROW_FUZZING=$ARROW_WITH_FUZZING \
 -DARROW_TEST_MEMCHECK=$ARROW_USE_VALGRIND \
--DARROW_USE_ASAN=$ASAN_IF_ENABLED"
+-DARROW_USE_ASAN=$USE_ASAN"
 
   set_build_type_flags
 }
@@ -247,7 +254,7 @@ function toolchain_gcc {
     export ARROW_TOOLCHAIN_FLAGS="\
 -DARROW_FUZZING=OFF \
 -DARROW_TEST_MEMCHECK=$ARROW_USE_VALGRIND \
--DARROW_USE_ASAN=OFF"
+-DARROW_USE_ASAN=$USE_ASAN"
 
   set_build_type_flags
 }
