@@ -176,7 +176,7 @@ $USE_NINJA_BUILD \
 -DARROW_USE_LD_GOLD=$ARROW_USE_LD_GOLD \
 -DARROW_JEMALLOC=$ARROW_USE_JEMALLOC \
 -DARROW_ORC=$ARROW_BUILD_ORC \
--DARROW_PARQUET=on \
+-DARROW_PARQUET=$ARROW_BUILD_PARQUET \
 -DPYTHON_EXECUTABLE=$CONDA_PREFIX/bin/python \
 -DPARQUET_BUILD_EXECUTABLES=on \
 -DPARQUET_BUILD_EXAMPLES=on \
@@ -219,7 +219,8 @@ function release() {
 
   export USE_ASAN=OFF
 
-  export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
+  # export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
+  export ARROW_CXXFLAGS=
   export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
 
   set_build_env
@@ -305,8 +306,9 @@ export ARROW_HDFS_TEST_USER=wesm
 
 function arrow_cpp_update {
     _PYTHON_VERSION=$(python -c "import sys; print('{0}.{1}'.format(sys.version_info.major, sys.version_info.minor))")
-    mkdir -p $ARROW_ROOT/cpp/library-build-$_PYTHON_VERSION
-    pushd $ARROW_ROOT/cpp/library-build-$_PYTHON_VERSION
+    _BUILD_DIR=$ARROW_ROOT/cpp/library-build-$TOOLCHAIN_BUILD_TYPE-$_PYTHON_VERSION
+    mkdir -p $_BUILD_DIR
+    pushd $_BUILD_DIR
     cmake -GNinja \
           -DARROW_DEPENDENCY_SOURCE=SYSTEM \
           -DARROW_PACKAGE_PREFIX=$CPP_TOOLCHAIN \
