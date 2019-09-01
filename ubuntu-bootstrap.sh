@@ -270,6 +270,10 @@ export GOPATH=\$HOME/go
 export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
 END
 )
+    export GOROOT=/opt/go$VERSION
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
   echo "$BASHRC_ADDITION" >> ~/.bashrc
 }
 
@@ -351,7 +355,7 @@ fi
 # install_cpp_runtime_toolchain
 # install_emacs
 
-# install_go
-# install_hugo
+install_go
+install_hugo
 
-install_node
+# install_node
