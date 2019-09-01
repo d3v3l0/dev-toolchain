@@ -208,7 +208,14 @@ $ARROW_TOOLCHAIN_FLAGS
   export ARROW_CXXFLAGS="-fno-omit-frame-pointer"
   export ARROW_R_CXXFLAGS="-fno-omit-frame-pointer"
 
-  export USE_ASAN=ON
+  # ASAN for R
+  export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=address -DADDRESS_SANITIZER"
+
+  # UBSAN for R
+  export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=undefined -fno-sanitize=alignment,vptr,function -fno-sanitize-recover=all"
+
+  export USE_ASAN=OFF
+  export USE_UBSAN=OFF
 
   set_build_env
 }
@@ -218,6 +225,7 @@ function release() {
   export TOOLCHAIN_BUILD_TYPE=release
 
   export USE_ASAN=OFF
+  export USE_UBSAN=OFF
 
   # export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
   export ARROW_CXXFLAGS=
@@ -243,7 +251,8 @@ function toolchain_clang {
   export ARROW_TOOLCHAIN_FLAGS="\
 -DARROW_FUZZING=$ARROW_WITH_FUZZING \
 -DARROW_TEST_MEMCHECK=$ARROW_USE_VALGRIND \
--DARROW_USE_ASAN=$USE_ASAN"
+-DARROW_USE_ASAN=$USE_ASAN \
+-DARROW_USE_UBSAN=$USE_UBSAN"
 
   set_build_type_flags
 }
@@ -255,19 +264,8 @@ function toolchain_gcc {
     export ARROW_TOOLCHAIN_FLAGS="\
 -DARROW_FUZZING=OFF \
 -DARROW_TEST_MEMCHECK=$ARROW_USE_VALGRIND \
--DARROW_USE_ASAN=$USE_ASAN"
-
-  set_build_type_flags
-}
-
-function toolchain_gcc48 {
-    export CC=gcc-4.8
-    export CXX=g++-4.8
-
-    export ARROW_TOOLCHAIN_FLAGS="\
--DARROW_FUZZING=OFF \
--DARROW_TEST_MEMCHECK=$ARROW_USE_VALGRIND \
--DARROW_USE_ASAN=OFF"
+-DARROW_USE_ASAN=$USE_ASAN \
+-DARROW_USE_UBSAN=$USE_UBSAN"
 
   set_build_type_flags
 }
@@ -334,6 +332,8 @@ function arrow_cpp_update {
           -DARROW_WITH_BZ2=$ARROW_BUILD_BZ2 \
           -DARROW_WITH_ZSTD=$ARROW_BUILD_ZSTD \
           -DARROW_BUILD_TESTS=off \
+          -DARROW_USE_ASAN=$USE_ASAN \
+          -DARROW_USE_UBSAN=$USE_UBSAN \
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
           -Duriparser_SOURCE=BUNDLED \
           ..
