@@ -21,22 +21,22 @@ export ARROW_BUILD_PARQUET=ON
 export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
-export ARROW_BUILD_FLIGHT=ON
+export ARROW_BUILD_FLIGHT=OFF
 export ARROW_GFLAGS_USE_SHARED=OFF
 export ARROW_GTEST_VENDORED=ON
 export ARROW_BUILD_GANDIVA=OFF
 export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_CCACHE=ON
 export ARROW_USE_JEMALLOC=ON
-export ARROW_USE_GLOG=ON
-export ARROW_USE_LD_GOLD=OFF
+export ARROW_USE_GLOG=OFF
+export ARROW_USE_LD_GOLD=ON
 export ARROW_USE_VALGRIND=OFF
 export ARROW_OPTIONAL_INSTALL=ON
 
 export ARROW_BUILD_GPU=OFF
 export PYARROW_WITH_CUDA=0
 
-export PYARROW_WITH_FLIGHT=1
+export PYARROW_WITH_FLIGHT=0
 export PYARROW_WITH_ORC=0
 export PYARROW_WITH_PARQUET=1
 export PYARROW_WITH_PLASMA=1
@@ -56,6 +56,11 @@ export USE_NINJA_BUILD=-GNinja
 export ARROW_ROOT=$HOME/code/arrow
 export ARROW_TEST_DATA=$ARROW_ROOT/testing/data
 export PARQUET_TEST_DATA=$ARROW_ROOT/cpp/submodules/parquet-testing/data
+
+function use_gcc8 {
+    export CC=gcc-8
+    export CXX=g++-8
+}
 
 function osx_toolchain {
     export MACOSX_DEPLOYMENT_TARGET=10.9
@@ -227,8 +232,8 @@ function release() {
   export USE_ASAN=OFF
   export USE_UBSAN=OFF
 
-  # export ARROW_CXXFLAGS='-fno-omit-frame-pointer -g'
-  export ARROW_CXXFLAGS=
+  export ARROW_CXXFLAGS='-fno-omit-frame-pointer'
+  export ARROW_CXXFLAGS=""
   export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
 
   set_build_env
@@ -334,6 +339,7 @@ function arrow_cpp_update {
           -DARROW_BUILD_TESTS=off \
           -DARROW_USE_ASAN=$USE_ASAN \
           -DARROW_USE_UBSAN=$USE_UBSAN \
+          -DARROW_USE_GLOG=$ARROW_USE_GLOG \
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
           -Duriparser_SOURCE=BUNDLED \
           ..
@@ -429,6 +435,10 @@ function update_pyarrow {
 }
 
 export FLAMEGRAPH_PATH=/home/wesm/code/FlameGraph
+
+function quickperf {
+    perf record -F 999 -g --call-graph=dwarf -- $@
+}
 
 function flamegraph {
     perf record -F 999 -g --call-graph=dwarf -- $@
