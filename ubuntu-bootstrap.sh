@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+X#!/usr/bin/env bash
 
 set -ex
 
@@ -341,21 +341,27 @@ if [ ! -d "$ARROW_DIR" ]; then
    git clone https://github.com/wesm/arrow.git $ARROW_DIR
 fi
 
+export GEM_HOME="$HOME/gems"
+export PATH="$GEM_HOME/bin:$PATH"
+
 # install_apt_packages_1804
 # install_docker
 
 # install_conda
+
+. $MINICONDA/etc/profile.d/conda.sh
+
 # create_conda_dev_environments
 # install_conda_dev_environments
 # install_cuda
 # install_ruby
 # install_dotfiles
 # install_spotify
-# install_cpp_toolchain
-# install_cpp_runtime_toolchain
-# install_emacs
+install_cpp_toolchain
+install_cpp_runtime_toolchain
+install_emacs
 
 install_go
 install_hugo
 
-# install_node
+install_node
