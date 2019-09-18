@@ -18,7 +18,7 @@ export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_ZSTD=ON
 export ARROW_BUILD_ORC=OFF
 export ARROW_BUILD_PARQUET=ON
-export ARROW_BUILD_PLASMA=OFF
+export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
 export ARROW_BUILD_FLIGHT=OFF
@@ -33,13 +33,13 @@ export ARROW_USE_LD_GOLD=ON
 export ARROW_USE_VALGRIND=OFF
 export ARROW_OPTIONAL_INSTALL=ON
 
-export ARROW_BUILD_GPU=OFF
-export PYARROW_WITH_CUDA=0
+export ARROW_BUILD_GPU=$ARROW_LOCAL_BUILD_CUDA
+export PYARROW_WITH_CUDA=$ARROW_LOCAL_BUILD_CUDA
 
 export PYARROW_WITH_FLIGHT=0
 export PYARROW_WITH_ORC=0
 export PYARROW_WITH_PARQUET=1
-export PYARROW_WITH_PLASMA=0
+export PYARROW_WITH_PLASMA=1
 export PYARROW_WITH_GANDIVA=0
 
 export PYARROW_BUNDLE_ARROW_CPP=0
@@ -60,6 +60,11 @@ export PARQUET_TEST_DATA=$ARROW_ROOT/cpp/submodules/parquet-testing/data
 function use_gcc8 {
     export CC=gcc-8
     export CXX=g++-8
+}
+
+function use_gcc {
+    export CC=gcc
+    export CXX=g++
 }
 
 function osx_toolchain {
