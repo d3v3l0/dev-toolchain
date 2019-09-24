@@ -228,3 +228,6 @@ function arrow() {
     . /home/wesm/miniconda/etc/profile.d/conda.sh
     conda activate arrow-3.7
 }
+
+# Change default file permissions so other users cannot see my data
+umask 077
