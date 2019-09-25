@@ -453,6 +453,14 @@ function quickperf {
     perf record -F 999 -g --call-graph=dwarf -- $@
 }
 
+function mpr {
+    python $ARROW_ROOT/dev/merge_arrow_pr.py $@
+    pushd $ARROW_ROOT
+    git checkout master
+    git pull --ff-only apache master
+    popd
+}
+
 function flamegraph {
     perf record -F 999 -g --call-graph=dwarf -- $@
     perf script | c++filt | $FLAMEGRAPH_PATH/stackcollapse-perf.pl > out.perf-folded
