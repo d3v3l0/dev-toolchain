@@ -18,7 +18,7 @@ export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_ZSTD=ON
 export ARROW_BUILD_ORC=OFF
 export ARROW_BUILD_PARQUET=ON
-export ARROW_BUILD_PLASMA=ON
+export ARROW_BUILD_PLASMA=OFF
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
 export ARROW_BUILD_FLIGHT=ON
@@ -27,7 +27,7 @@ export ARROW_GTEST_VENDORED=ON
 export ARROW_BUILD_GANDIVA=OFF
 export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_CCACHE=ON
-export ARROW_USE_JEMALLOC=ON
+export ARROW_USE_JEMALLOC=OFF
 export ARROW_USE_GLOG=OFF
 export ARROW_USE_LD_GOLD=ON
 export ARROW_USE_VALGRIND=OFF
@@ -39,7 +39,7 @@ export PYARROW_WITH_CUDA=$ARROW_LOCAL_BUILD_CUDA
 export PYARROW_WITH_FLIGHT=1
 export PYARROW_WITH_ORC=0
 export PYARROW_WITH_PARQUET=1
-export PYARROW_WITH_PLASMA=1
+export PYARROW_WITH_PLASMA=0
 export PYARROW_WITH_GANDIVA=0
 
 export PYARROW_BUNDLE_ARROW_CPP=0
@@ -219,10 +219,10 @@ $ARROW_TOOLCHAIN_FLAGS
   export ARROW_R_CXXFLAGS="-fno-omit-frame-pointer"
 
   # ASAN for R
-  export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=address -DADDRESS_SANITIZER"
+  # export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=address -DADDRESS_SANITIZER"
 
   # UBSAN for R
-  export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=undefined -fno-sanitize=alignment,vptr,function -fno-sanitize-recover=all"
+  # export ARROW_R_CXXFLAGS="$ARROW_R_CXXFLAGS -fsanitize=undefined -fno-sanitize=alignment,vptr,function -fno-sanitize-recover=all"
 
   export USE_ASAN=OFF
   export USE_UBSAN=OFF
@@ -239,6 +239,7 @@ function release() {
 
   export ARROW_CXXFLAGS='-fno-omit-frame-pointer'
   export ARROW_CXXFLAGS=""
+  export ARROW_R_CXXFLAGS=""
   export EXTRA_ARROW_FLAGS="" # -DBUILD_WARNING_LEVEL=CHECKIN"
 
   set_build_env
@@ -436,6 +437,13 @@ function update_pyarrow {
     pushd $ARROW_ROOT/python
     rm -rf build/
     python setup.py build_ext --inplace
+    popd
+}
+
+function update_arrow_r {
+    update_tp_toolchain
+    pushd $ARROW_ROOT/r
+    R CMD INSTALL .
     popd
 }
 
