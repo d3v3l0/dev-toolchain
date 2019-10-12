@@ -231,3 +231,6 @@ function arrow() {
 
 # Change default file permissions so other users cannot see my data
 umask 077
+
+mkdir -p $HOME/bin
+export PATH=$HOME/bin:$PATH
