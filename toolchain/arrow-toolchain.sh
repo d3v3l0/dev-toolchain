@@ -21,15 +21,15 @@ export ARROW_BUILD_BROTLI=ON
 export ARROW_BUILD_BZ2=ON
 export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_INTEGRATION=ON
-export ARROW_BUILD_ORC=OFF
+export ARROW_BUILD_ORC=ON
 export ARROW_BUILD_PARQUET=ON
-export ARROW_BUILD_PLASMA=OFF
+export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
 export ARROW_GANDIVA_BUILD_TESTS=ON
 export ARROW_BUILD_FLIGHT=ON
 export ARROW_GFLAGS_USE_SHARED=OFF
 export ARROW_GTEST_VENDORED=ON
-export ARROW_BUILD_GANDIVA=OFF
+export ARROW_BUILD_GANDIVA=ON
 export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_CCACHE=ON
 export ARROW_USE_JEMALLOC=ON
@@ -42,10 +42,10 @@ export ARROW_BUILD_GPU=$ARROW_LOCAL_BUILD_CUDA
 export PYARROW_WITH_CUDA=$ARROW_LOCAL_BUILD_CUDA
 
 export PYARROW_WITH_FLIGHT=1
-export PYARROW_WITH_ORC=0
+export PYARROW_WITH_ORC=1
 export PYARROW_WITH_PARQUET=1
-export PYARROW_WITH_PLASMA=0
-export PYARROW_WITH_GANDIVA=0
+export PYARROW_WITH_PLASMA=1
+export PYARROW_WITH_GANDIVA=1
 
 export PYARROW_BUNDLE_ARROW_CPP=0
 export PYARROW_BUNDLE_BOOST=0
@@ -59,6 +59,7 @@ export DEVELOPER_DIR=$XCODE_ROOT
 export USE_NINJA_BUILD=-GNinja
 
 export ARROW_ROOT=$HOME/code/arrow
+export ARROW_SITE=$HOME/code/arrow-site
 export ARROW_TEST_DATA=$ARROW_ROOT/testing/data
 export PARQUET_TEST_DATA=$ARROW_ROOT/cpp/submodules/parquet-testing/data
 
@@ -460,6 +461,27 @@ function update_arrow_r {
     pushd $ARROW_ROOT/r
     R CMD INSTALL .
     popd
+}
+
+function update_arrow_site {
+    update_pyarrow || return
+    pushd $ARROW_ROOT/cpp/apidoc
+    doxygen || return
+    popd
+
+    pushd $ARROW_ROOT/docs
+    make html || return
+
+    BRANCH_NAME=update-main-docs-$(git describe)
+
+    # rsync to arrow-site
+    pushd $ARROW_SITE
+    git checkout asf-site || return
+    git pull --ff-only apache asf-site || return
+    git checkout -b $BRANCH_NAME || return
+    rsync -r $ARROW_ROOT/docs/_build/html/ $ARROW_SITE/docs/ || return
+    git add -f docs || return
+    git commit -a
 }
 
 export FLAMEGRAPH_PATH=/home/wesm/code/FlameGraph

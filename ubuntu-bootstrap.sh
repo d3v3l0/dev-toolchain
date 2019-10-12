@@ -124,7 +124,7 @@ function install_cpp_toolchain() {
     conda create -yq -p $HOME/cpp-toolchain \
 	  --file=$ARROW_DIR/ci/conda_env_cpp.yml \
 	  --file=$ARROW_DIR/ci/conda_env_gandiva.yml \
-          -c conda-forge
+      orc -c conda-forge
 }
 
 function install_cpp_runtime_toolchain() {
@@ -139,7 +139,8 @@ function install_cpp_runtime_toolchain() {
           lz4-c \
           bzip2 \
           zlib \
-	  re2 \
+          orc \
+	      re2 \
           snappy \
           thrift-cpp \
           -c conda-forge
