@@ -39,6 +39,8 @@ END
 
 # Basic packages
 function install_apt_packages() {
+    LLVM_VERSION=7
+
     sudo apt install -y \
          autoconf-archive \
          gtk-doc-tools \
@@ -68,11 +70,8 @@ function install_apt_packages() {
          cloc \
          filezilla \
          bcrypt \
-         libcurl4-openssl-dev
-
-    LLVM_VERSION=7
-
-    sudo apt-get install -y \
+         libcurl4-openssl-dev \
+         libxml2-dev libxslt1-dev \
          libllvm$LLVM_VERSION \
          llvm-$LLVM_VERSION-dev \
          clang-$LLVM_VERSION \

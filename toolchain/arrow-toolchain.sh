@@ -22,6 +22,7 @@ export ARROW_BUILD_BZ2=ON
 export ARROW_BUILD_HIVESERVER2=OFF
 export ARROW_BUILD_INTEGRATION=ON
 export ARROW_BUILD_ORC=ON
+export ARROW_BUILD_ZSTD=ON
 export ARROW_BUILD_PARQUET=ON
 export ARROW_BUILD_PLASMA=ON
 export ARROW_BUILD_PYTHON=ON
@@ -33,7 +34,7 @@ export ARROW_BUILD_GANDIVA=ON
 export ARROW_BUILD_GANDIVA_JNI=OFF
 export ARROW_USE_CCACHE=ON
 export ARROW_USE_JEMALLOC=ON
-export ARROW_USE_GLOG=OFF
+export ARROW_USE_GLOG=ON
 export ARROW_USE_LD_GOLD=ON
 export ARROW_USE_VALGRIND=OFF
 export ARROW_OPTIONAL_INSTALL=ON
@@ -204,7 +205,6 @@ $USE_NINJA_BUILD \
 -DARROW_PYTHON=$ARROW_BUILD_PYTHON \
 -DARROW_CUDA=$ARROW_BUILD_GPU \
 -DBOOST_ROOT=$ARROW_BOOST_ROOT \
--Duriparser_SOURCE=BUNDLED \
 $EXTRA_ARROW_FLAGS"
 
 export PYARROW_CXXFLAGS="$CXX_ABI_OPTION"
@@ -363,7 +363,6 @@ function arrow_cpp_update {
           -DARROW_USE_UBSAN=$USE_UBSAN \
           -DARROW_USE_GLOG=$ARROW_USE_GLOG \
           -DCMAKE_BUILD_TYPE=$TOOLCHAIN_BUILD_TYPE \
-          -Duriparser_SOURCE=BUNDLED \
           ..
     ninja
     ninja install
@@ -496,6 +495,10 @@ function mpr {
     git checkout master
     git pull --ff-only apache master
     popd
+}
+
+function set_governor_performance {
+    sudo bash -c 'for i in {0..$(nproc)}; do cpufreq-set -c $i -g performance; done'
 }
 
 function flamegraph {
